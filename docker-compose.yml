@@ -1,0 +1,31 @@
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+      - MONGO_INITDB_DATABASE=flights_db
+
+  app:
+    build: ./app
+    container_name: node-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - MONGODB_URI=mongodb://admin:password@mongodb:27017/flights_db?authSource=admin
+      - NODE_ENV=development
+    depends_on:
+      - mongodb
+    volumes:
+      - ./app:/usr/src/app
+      - /usr/src/app/node_modules
+
+volumes:
+  mongo-data:
