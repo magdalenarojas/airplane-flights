@@ -64,9 +64,11 @@ router.post("/", async (req, res) => {
   }
   const result = createFlightSchema.parse({ flightCode, passengers });
   if (!result.success) {
+    const { fieldErrors } = result.error.flatten();
     return res.status(400).json({
       success: false,
-      error: result.error.message,
+      message: "Datos inválidos",
+      errors: fieldErrors,
     });
   }
   try {
@@ -165,9 +167,11 @@ router.post("/:code/passengers", async (req, res) => {
     const body = req.body;
     const result = passengerSchema.safeParse(body);
     if (!result.success) {
+      const { fieldErrors } = result.error.flatten();
       return res.status(400).json({
         success: false,
-        error: JSON.parse(result.error.message),
+        message: "Datos inválidos",
+        errors: fieldErrors,
       });
     }
 
