@@ -21,6 +21,7 @@ services:
     environment:
       - MONGODB_URI=mongodb://admin:password@mongodb:27017/flights_db?authSource=admin
       - NODE_ENV=development
+      - API_TOKEN=dev-token
     depends_on:
       - mongodb
     volumes:

@@ -46,7 +46,21 @@ const flightSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
+  { _id: false }
 );
+
+const hide = {
+  versionKey: false,
+  transform: (_doc, ret) => {
+    delete ret._id;
+    if (Array.isArray(ret.passengers)) {
+      ret.passengers = ret.passengers.map(({ _id, ...p }) => p);
+    }
+    return ret;
+  },
+};
+flightSchema.set("toJSON", hide);
+flightSchema.set("toObject", hide);
 
 export default mongoose.model("Flight", flightSchema);

@@ -4,7 +4,6 @@ Este proyecto proporciona un entorno de desarrollo completo usando Docker Compos
 
 - **MongoDB**: Base de datos NoSQL
 - **API REST**: Aplicación Node.js con Express
-- **Postman**: Herramienta para realizar requests a la API
 
 ### Prerrequisitos
 

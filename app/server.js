@@ -15,14 +15,28 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(helmet());
-app.use(cors());
+app.use(
+  cors({
+    origin: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
+
+const auth = (req, res, next) => {
+  const [type, token] = (req.get("Authorization") || "").split(" ");
+  if (type !== "Bearer" || token !== process.env.API_TOKEN) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  next();
+};
+
 app.use(morgan("combined"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 connectDB();
 
-app.use("/api/flights", flightRoutes);
+app.use("/api/flights", auth, flightRoutes);
 
 app.get("/", (req, res) => {
   res.json({
@@ -35,7 +49,6 @@ app.get("/", (req, res) => {
   });
 });
 
-// Middleware para manejar rutas no encontradas
 app.use("*", (req, res) => {
   res.status(404).json({
     success: false,
