@@ -203,16 +203,16 @@ router.post("/:code/passengers", async (req, res) => {
   }
 });
 
-router.delete("/:flightId/passengers/:passengerId", async (req, res) => {
-  const { flightId, passengerId } = req.params;
-  if (typeof flightId !== "string" || typeof passengerId !== "string") {
+router.delete("/:flightCode/passengers/:passengerId", async (req, res) => {
+  const { flightCode, passengerId } = req.params;
+  if (typeof flightCode !== "string" || typeof passengerId !== "string") {
     return res.status(400).json({
       success: false,
       error: "ID de vuelo o pasajero inválido",
     });
   }
   try {
-    const flight = await Flight.findById(flightId);
+    const flight = await Flight.findOne({ flightCode });
 
     if (!flight) {
       return res.status(404).json({

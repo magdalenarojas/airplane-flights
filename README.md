@@ -39,21 +39,20 @@ Este proyecto proporciona un entorno de desarrollo completo usando Docker Compos
 
 ### Vuelos
 
-| Método | Endpoint                         | Descripción              |
-| ------ | -------------------------------- | ------------------------ |
-| GET    | `/api/flights`                   | Obtener todos los vuelos |
-| GET    | `/api/flights/:id`               | Obtener un vuelo por ID  |
-| POST   | `/api/flights`                   | Crear un nuevo vuelo     |
-| PUT    | `/api/flights/:id`               | Actualizar un vuelo      |
-| DELETE | `/api/flights/:id`               | Eliminar un vuelo        |
-| GET    | `/api/flights/search/code/:code` | Buscar vuelos por código |
+| Método | Endpoint             | Descripción                     |
+| ------ | -------------------- | ------------------------------- |
+| GET    | `/api/flights`       | Obtener todos los vuelos        |
+| GET    | `/api/flights/:code` | Obtener un vuelo por flightCode |
+| POST   | `/api/flights`       | Crear un nuevo vuelo            |
+| PUT    | `/api/flights/:code` | Actualizar un vuelo             |
+| DELETE | `/api/flights/:code` | Eliminar un vuelo               |
 
 ### Pasajeros
 
-| Método | Endpoint                                         | Descripción                   |
-| ------ | ------------------------------------------------ | ----------------------------- |
-| POST   | `/api/flights/:id/passengers`                    | Agregar pasajero a un vuelo   |
-| DELETE | `/api/flights/:flightId/passengers/:passengerId` | Eliminar pasajero de un vuelo |
+| Método | Endpoint                                     | Descripción                   |
+| ------ | -------------------------------------------- | ----------------------------- |
+| POST   | `/api/flights/:code/passengers`              | Agregar pasajero a un vuelo   |
+| DELETE | `/api/flights/:code/passengers/:passengerId` | Eliminar pasajero de un vuelo |
 
 ## 🗄️ Esquema de Datos
 
