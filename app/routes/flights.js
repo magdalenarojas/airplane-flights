@@ -4,6 +4,7 @@ import {
   createFlightSchema,
   passengerSchema,
 } from "../models/validationSchema.js";
+import { ZodError } from "zod";
 
 const router = express.Router();
 
@@ -54,35 +55,57 @@ router.get("/:code", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-  const { flightCode, passengers } = req.body;
-  const existingFlight = await Flight.findOne({ flightCode });
-  if (existingFlight) {
-    return res.status(400).json({
-      success: false,
-      error: "Ya existe un vuelo con este código",
-    });
-  }
-  const result = createFlightSchema.parse({ flightCode, passengers });
-  if (!result.success) {
-    const { fieldErrors } = result.error.flatten();
-    return res.status(400).json({
-      success: false,
-      message: "Datos inválidos",
-      errors: fieldErrors,
-    });
-  }
   try {
-    const flight = new Flight({
+    const { flightCode, capacity, passengers: initialPassengers } = req.body;
+    const existingFlight = await Flight.findOne({ flightCode });
+    if (existingFlight) {
+      return res.status(409).json({
+        success: false,
+        error: "Ya existe un vuelo con este código",
+      });
+    }
+    if (initialPassengers.length > capacity) {
+      const boardedPassengers = getBoardedPassengers(
+        initialPassengers,
+        capacity
+      );
+    }
+
+    const result = createFlightSchema.parse({
       flightCode,
+      capacity,
       passengers,
     });
+    const flight = new Flight(result);
     const savedFlight = await flight.save();
+
+    const flightObject = savedFlight.toObject();
+    const passengersWhoBoarded = flightObject.passengers.filter(
+      (p) => p.boarded
+    );
+    const passengersOnWaitingList = flightObject.passengers.filter(
+      (p) => !p.boarded
+    );
+
+    delete flightObject.passengers;
+
     res.status(201).json({
       success: true,
-      data: savedFlight,
+      data: {
+        ...flightObject,
+        passengersWhoBoarded,
+        passengersOnWaitingList,
+      },
     });
   } catch (error) {
-    res.status(400).json({
+    if (error instanceof ZodError) {
+      return res.status(400).json({
+        success: false,
+        message: "Datos inválidos",
+        errors: error.flatten().fieldErrors,
+      });
+    }
+    res.status(500).json({
       success: false,
       error: "Error al crear el vuelo",
       message: error.message,
@@ -165,15 +188,7 @@ router.post("/:code/passengers", async (req, res) => {
   }
   try {
     const body = req.body;
-    const result = passengerSchema.safeParse(body);
-    if (!result.success) {
-      const { fieldErrors } = result.error.flatten();
-      return res.status(400).json({
-        success: false,
-        message: "Datos inválidos",
-        errors: fieldErrors,
-      });
-    }
+    const result = passengerSchema.parse(body);
 
     const flight = await Flight.findOne({ flightCode: code });
     if (!flight) {
@@ -192,14 +207,21 @@ router.post("/:code/passengers", async (req, res) => {
       });
     }
 
-    flight.passengers.push(body);
+    flight.passengers.push(result);
     const updatedFlight = await flight.save();
     res.status(201).json({
       success: true,
       data: updatedFlight,
     });
   } catch (error) {
-    res.status(400).json({
+    if (error instanceof ZodError) {
+      return res.status(400).json({
+        success: false,
+        message: "Datos inválidos",
+        errors: error.flatten().fieldErrors,
+      });
+    }
+    res.status(500).json({
       success: false,
       error: "Error al agregar pasajero",
       message: error.message,

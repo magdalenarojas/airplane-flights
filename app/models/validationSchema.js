@@ -15,9 +15,11 @@ export const passengerSchema = z.object({
   flightCategory: flightCategorySchema,
   hasCheckedBaggage: z.boolean().default(false),
   reservationId: z.string(),
+  boarded: z.boolean().optional(),
 });
 
 export const createFlightSchema = z.object({
   flightCode: z.string(),
+  capacity: z.number(),
   passengers: z.array(passengerSchema).default([]),
 });

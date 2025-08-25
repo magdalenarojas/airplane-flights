@@ -30,6 +30,10 @@ const passengerSchema = new mongoose.Schema({
     type: Boolean,
     required: true,
   },
+  boarded: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 const flightSchema = new mongoose.Schema(
@@ -38,6 +42,10 @@ const flightSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
+    },
+    capacity: {
+      type: Number,
+      required: true,
     },
     passengers: {
       type: [passengerSchema],
